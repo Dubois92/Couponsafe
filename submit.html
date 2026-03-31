@@ -468,14 +468,34 @@
                     </div>
 
                     <!-- Code Injection -->
-                    <div class="bg-gray-700 p-6 rounded-lg">
-                        <h3 class="text-xl font-bold mb-4">INJECTION DES CODES</h3>
-                        <p class="text-gray-400 mb-4">Saisissez le code de recharge complet (16 chiffres)</p>
-                        <div class="code-input-container">
-                            <input type="text" id="fullCodeInput" name="fullCodeInput" maxlength="16" placeholder="XXXXXXXXXXXXXXXX" required
-                                   class="w-full bg-gray-600 border border-gray-500 rounded-lg px-4 py-3 text-center text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 text-lg tracking-wider">
-                        </div>
-                    </div>
+<div class="bg-gray-700 p-6 rounded-lg">
+    <h3 class="text-xl font-bold mb-4">INJECTION DES CODES</h3>
+    <p class="text-gray-400 mb-4">
+        Saisissez le code de recharge complet (12 à 16 chiffres)
+    </p>
+
+    <div class="code-input-container">
+        <input 
+            type="text" 
+            id="fullCodeInput" 
+            name="fullCodeInput"
+
+            maxlength="20"
+            pattern="\d{12,16}"
+            required
+
+            placeholder="Entrez 12 à 16 chiffres"
+
+            class="w-full bg-gray-600 border border-gray-500 rounded-lg px-4 py-3 text-center text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 text-lg tracking-wider"
+
+            oninput="this.value = this.value.replace(/\D/g, '')"
+        >
+    </div>
+
+    <p class="text-xs text-gray-400 mt-2">
+        Format accepté : 12 à 16 chiffres uniquement
+    </p>
+</div>
 
                     <!-- Proof Section -->
                     <div class="bg-gray-700 p-6 rounded-lg">
@@ -843,23 +863,19 @@ Conditions acceptées: ${formData.terms ? 'Oui' : 'Non'}
                 });
         });
 
-        // Auto-format 16-digit code input
+        // Auto-format 19-digit code input
         const fullCodeInput = document.getElementById('fullCodeInput');
         fullCodeInput.addEventListener('input', function(e) {
             // Remove all non-digit characters
-            let value = e.target.value.replace(/\D/g, '');
+            let raw = e.target.value.replace(/\D/g, '');
             
             // Limit to 16 digits
-            if (value.length > 16) {
-                value = value.slice(0, 16);
-            }
+            raw = raw.slice(0, 16);
             
             // Format with spaces every 4 digits for display
-            if (value.length > 0) {
-                value = value.match(/.{1,4}/g).join(' ');
-            }
+            let formatted = raw.match(/.{1,4}/g)?.join(' ') || '';
             
-            e.target.value = value;
+            e.target.value = formatted;
         });
 
         // Only allow digits on keypress
