@@ -262,12 +262,23 @@
                     <form id="trackingForm" class="space-y-6">
                         <div>
                             <label class="block text-sm font-medium mb-2">INJECTION DES CODES</label>
-                            <input type="text" id="referenceNumber" placeholder="Saisissez le code de recharge complet (12 à 16 chiffres)" 
-                                   maxlength="16" minlength="12"
-                                   class="w-full bg-gray-600 border border-gray-500 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                            <p class="text-xs text-gray-400 mt-1">Formats acceptés: 12 à 16 chiffres</p>
-                        </div>
+                            <input 
+                               type="text" 
+                              id="referenceNumber"
+                              placeholder="Saisissez le code de recharge complet (12 à 16 chiffres)"
+    
+                              maxlength="16"
+                             pattern="\d{12,16}"
+                             required
+    
+                             class="w-full bg-gray-600 border border-gray-500 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+    
+                             oninput="this.value = this.value.replace(/\D/g, '')">
+
+  <p class="text-xs text-gray-400 mt-1">
+    Formats acceptés : 12 à 16 chiffres
+  </p>
+</div>
                         <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 py-3 rounded-lg font-semibold hover-scale">
                             SUIVRE LA VÉRIFICATION
                         </button>
