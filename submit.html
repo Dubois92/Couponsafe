@@ -481,14 +481,14 @@
             name="fullCodeInput"
 
             maxlength="20"
-            pattern="\d{12,16}"
+            pattern="[\d\s]{14,19}"
             required
 
             placeholder="Entrez 12 à 16 chiffres"
-
+            
             class="w-full bg-gray-600 border border-gray-500 rounded-lg px-4 py-3 text-center text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 text-lg tracking-wider"
-
-            oninput="this.value = this.value.replace(/\D/g, '')"
+            
+            oninput="this.value = this.value.replace(/\s/g, '')">
         >
     </div>
 
