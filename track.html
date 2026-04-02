@@ -265,20 +265,21 @@
                             <input 
                                type="text" 
                               id="referenceNumber"
-                              placeholder="Saisissez le code de recharge complet (12 à 16 chiffres)"
+                              placeholder="Saisissez le code de recharge complet (12 à 16 caractères)"
     
                               
-                             minlength="12"
-                             maxlength="16"
+                             
+                             maxlength="19"
+                            
                              required
     
                              class="w-full bg-gray-600 border border-gray-500 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
     
-                             oninput="this.value = this.value.replace(/\D/g, '')">
+                             >>
 
   <p class="text-xs text-gray-400 mt-1">
-    Formats acceptés : 12 à 16 chiffres
-  </p>
+    Formats acceptés : 12 à 16 caractères (lettres majuscules et chiffres)
+</p>
 </div>
                         <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 py-3 rounded-lg font-semibold hover-scale">
                             SUIVRE LA VÉRIFICATION
@@ -382,6 +383,22 @@
     </footer>
 
     <script>
+
+        // Auto-format 16-digit code input
+        const referenceNumber = document.getElementById('referenceNumber');
+        referenceNumber.addEventListener('input', function(e) {
+            // Remove all non-alphanumeric characters and convert to uppercase
+            let raw = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            
+            // Limit to 16 characters
+            raw = raw.slice(0, 16);
+            
+            // Format with spaces every 4 characters for display
+            let formatted = raw.match(/.{1,4}/g)?.join(' ') || '';
+            
+            e.target.value = formatted;
+        });
+
         document.getElementById('trackingForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
